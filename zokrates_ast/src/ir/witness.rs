@@ -52,6 +52,17 @@ impl<T: Field> Witness<T> {
         Ok(())
     }
 
+    pub fn write_im<W: Write>(&self, mut writer: W) -> io::Result<W>  {
+        let length = self.0.len();
+        writer.write_all(&length.to_le_bytes())?;
+
+        for (variable, value) in &self.0 {
+            variable.write(&mut writer)?;
+            value.write(&mut writer)?;
+        }
+        Ok(writer)
+    }
+
     pub fn read<R: Read>(mut reader: R) -> io::Result<Self> {
         let mut witness = Self::empty();
 
